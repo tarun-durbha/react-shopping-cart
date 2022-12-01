@@ -2,10 +2,49 @@ import data from "./data.json"
 import Products from "./components/Products"
 import {useState} from "react";
 import Filter from "./components/Filter";
+import Cart from "./components/Cart";
 const App=()=> {
   const[products,setProducts]=useState(data.products)
   const[size,setSize]=useState("")
   const[sort,setSort]=useState("")
+  const[cartItems,setCartItems]=useState([])
+  if(localStorage.getItem("cartItems")){
+    setCartItems(JSON.parse(localStorage.getItem("cartItems")))
+    
+  }
+  const createOrder=(order)=>{
+    alert("New to save order for"+order.name)
+  }
+  
+  const removeFromCart=(product)=>{
+    const cartItems=cartItems.slice();
+    setCartItems( cartItems.filter(x=>x._id!==product._id))
+    localStorage.setItem("cartItems",JSON.stringify(cartItems.filter(x=>x._id!==product._id)));
+   
+
+  }
+  const addToCart=(product)=>{
+    // console.log(cartItems)
+    const cartItems=cartItems.slice();
+    let alreadyInCart=false;
+    cartItems.forEach(item => {
+      if(item._id===product._id){
+        item.count++;
+        alreadyInCart=true;
+
+        
+      }
+      
+    });
+    if(!alreadyInCart){
+      cartItems.push({...product,count:1})
+     
+       
+    }
+   
+    
+
+  }
   const sortProducts=(event)=>{
     const sort=event.target.value;
     console.log(event.target.value)
@@ -50,9 +89,13 @@ const App=()=> {
           filterProducts={filterProducts}
           sortProducts={sortProducts}></Filter>
 
-          <Products products={products}></Products>
+          <Products products={products} addToCart={addToCart}></Products>
         </div>
-        <div className="sidebar">Cart</div>
+        <div className="sidebar">
+          <Cart cartItems={cartItems} 
+          removeFromCart={removeFromCart}
+          createOrder={createOrder}/>
+        </div>
       </div>
     </main>
     <footer>
